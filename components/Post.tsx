@@ -27,7 +27,7 @@ import { BaseEmoji } from "emoji-mart";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
-const Post: FC<{ post: DocumentData }> = ({ post }) => {
+const Post: FC<{ post: DocumentData; id: string }> = ({ post, id }) => {
   const { data: session } = useSession();
   const [comments, setComments] = useState<DocumentData[]>([]);
   const [comment, setComment] = useState("");
@@ -51,20 +51,20 @@ const Post: FC<{ post: DocumentData }> = ({ post }) => {
     () =>
       onSnapshot(
         query(
-          collection(db, "posts", post.id, "comments"),
+          collection(db, "posts", id, "comments"),
           orderBy("timestamp", "desc")
         ),
         (snapshot) => setComments(snapshot.docs)
       ),
-    [db, post.id]
+    [db, id]
   );
 
   useEffect(
     () =>
-      onSnapshot(collection(db, "posts", post.id, "likes"), (snapshot) =>
+      onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
         setLikes(snapshot.docs)
       ),
-    [db, post.id]
+    [db, id]
   );
 
   useEffect(
@@ -77,9 +77,9 @@ const Post: FC<{ post: DocumentData }> = ({ post }) => {
 
   const likePost = async () => {
     if (liked) {
-      await deleteDoc(doc(db, "posts", post.id, "likes", session?.user.uid!));
+      await deleteDoc(doc(db, "posts", id, "likes", session?.user.uid!));
     } else {
-      await setDoc(doc(db, "posts", post.id, "likes", session?.user.uid!), {
+      await setDoc(doc(db, "posts", id, "likes", session?.user.uid!), {
         username: session?.user.username,
       });
     }
@@ -91,7 +91,7 @@ const Post: FC<{ post: DocumentData }> = ({ post }) => {
     const commentToSend = comment;
     setComment("");
 
-    await addDoc(collection(db, "posts", post.id, "comments"), {
+    await addDoc(collection(db, "posts", id, "comments"), {
       comment: commentToSend,
       username: session?.user.username,
       userImage: session?.user.image,

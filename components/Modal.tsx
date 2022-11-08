@@ -59,7 +59,6 @@ const Modal = () => {
     setLoading(true);
     // 1) create a post and add to fireStore 'posts' collection
     const docRef = await addDoc(collection(db, "posts"), {
-      id: session?.user.uid,
       username: session?.user.username,
       profileImg: session?.user.image,
       caption: input,
